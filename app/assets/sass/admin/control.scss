@@ -1,0 +1,83 @@
+.styleInput {
+    height: 44px;
+    width: 100%;
+    padding: 0 10px;
+    outline: none;
+    border: 0;
+
+    font-size: 16px;
+    &.border {
+        border: 1px #1b394e solid;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+
+    }
+    &.w1 {
+        width: 360px;
+        float: left;
+    }
+    &.error {
+        border: 1px red solid;
+    }
+}
+
+.buttonStyle {
+  background-color: #fff;
+  height: 34px;
+  border-radius: 5px;
+  color: #1b394e;
+  float: left;
+  padding: 0 10px;
+  line-height: 34px;
+  cursor: pointer;
+  margin: 5px 5px;
+  font-size: 12px;
+  text-align: center;
+  border: 1px #1b394e solid;
+  text-transform: uppercase;
+  &.align-center{
+      display: table;
+      margin: 0 auto;
+      float: none;
+  }
+  &.disable {
+	  opacity: 0.5;
+	  pointer-events: none;
+	  cursor: not-allowed
+  }
+  &.upload {
+	  float: left;
+	  margin: 6px 10px;
+  }
+  &.deactivate.red{
+	  float: right;
+	  border: 1px #d62f43 solid;
+	  color: #d62f43;
+  }
+  &.edit {
+	  float: right;
+	  padding: 0 20px;
+  }
+  &:hover {
+	  background-color: #215478;
+	  color: #fff;
+	  &.red {
+		  background: #D0011B;
+		  color: #fff;
+	  }
+  }
+}
+.showMobile {
+	display: none;
+}
+.showDestop {
+	display: block;
+}
+
+/*==============mixin==============*/
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}

@@ -1,0 +1,108 @@
+---
+format_version: '3'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: other
+workflows:
+  primary:
+    steps:
+    - activate-ssh-key@3.1.1:
+        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+    - git-clone@3.5.0: {}
+
+    - script@1.1.4:
+        run_if: .IsCI
+        inputs:
+        - content: envman add --key PATH --value ~/.local/bin:$PATH
+        title: Add home bin to path
+
+
+    - script@1.1.4:
+        run_if: '{{getenv "CI" | eq "false"}}'
+        inputs:
+        - content: |
+            #!/bin/bash
+            envman add --key GIT_TAG --value "local-`date +'%Y-%m-%d-%H-%M-%S'`"
+        title: Set CI build tag
+
+    - script@1.1.4:
+        run_if: .IsCI
+        inputs:
+        - content: |
+            #!/bin/bash
+            envman add --key GIT_TAG --value "ci-$BITRISE_GIT_BRANCH-$BITRISE_BUILD_NUMBER"
+        title: Setting CI build tag
+
+    - script@1.1.4:
+        run_if: .IsCI
+        inputs:
+        - content: apt-get install nodejs
+        title: Install Node
+
+    - script@1.1.4:
+        title: Revert to NPM 5.2 because of prune bug
+        run_if: .IsCI
+        inputs:
+        - content: npm i -g npm@5.2
+
+
+    - script@1.1.4:
+        run_if: .IsCI
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            apt-get -q --yes install python3
+            apt-get -q --yes install python3-pip
+            pip3 install -U pip setuptools
+            pip3 install --upgrade --user awscli
+            aws configure set preview.cloudfront true
+        title: Install AWS client
+
+    - script@1.1.4:
+        title: Echo AWS CLI Version
+        inputs:
+        - content: aws --version
+
+    - script@1.1.4:
+        title: NPM Install
+        inputs:
+        - content: npm install
+
+    - script@1.1.4:
+        title: Run ES Lint
+        inputs:
+        # the exit 0 in this step is ignore our eslint errors for now
+        - content: |-
+            #!/bin/bash
+            npm run eslint
+            exit 0
+
+    - script@1.1.4:
+        title: Run Web Pack
+        inputs:
+        - content: npm run webpack
+
+    - script@1.1.4:
+        title: Prune for production
+        inputs:
+        - content: npm prune --production --ignore=node_modules/\.bin
+
+    - script@1.1.4:
+        title: Deploy
+        inputs:
+        - content: ./deploy.sh $DEPLOY_STAGE
+
+    - deploy-to-bitrise-io:
+        run_if: .IsCI
+        is_always_run: true
+        inputs:
+        - deploy_path: "eslint.txt"
+
+    - script@1.1.4:
+        title: Echo Tag
+        inputs:
+        - content: echo $GIT_TAG
+
+    - git-tag@1.1.0:
+        inputs:
+        - tag: "$GIT_TAG"
