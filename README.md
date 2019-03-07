@@ -1,5 +1,5 @@
 # EAS Web
-An application for all users to view flight information and for employees to manage the EAS system.
+An application for all customers can ...
 
 ## Architecture
 This is a React+Redux based application. It does not currently use any component framework. One may be adopted in the
